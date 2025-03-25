@@ -1,6 +1,7 @@
 import "antd/dist/reset.css";
 import "./globals.css";
 import Header from "@/components/Header";
+import { HotelProvider } from "@/context/hotelContext";
 
 export const metadata = {
   title: "StayKuy - Hotel Booking",
@@ -12,7 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <Header />
-        {children}
+        <HotelProvider>{children}</HotelProvider>
       </body>
     </html>
   );

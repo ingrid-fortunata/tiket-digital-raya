@@ -6,6 +6,8 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 
+const { RangePicker } = DatePicker;
+
 export default function HotelSearchBar({ cities }) {
   const [destination, setDestination] = useState(null);
   const [date, setDate] = useState(null);
@@ -13,15 +15,16 @@ export default function HotelSearchBar({ cities }) {
   const router = useRouter();
 
   const handleSearch = async () => {
-    if (!destination || !date || !guests) {
+    if (!destination || !date?.[0] || !date?.[1] || !guests) {
       message.warning("Harap isi semua field sebelum mencari hotel!");
       return;
     }
 
-    const formattedDate = dayjs(date).format("YYYY-MM-DD");
+    const checkInDate = dayjs(date[0]).format("YYYY-MM-DD");
+    const checkOutDate = dayjs(date[1]).format("YYYY-MM-DD");
 
     router.push(
-      `/hotels?destination=${destination}&date=${formattedDate}&guests=${guests}`
+      `/hotels?destination=${destination}&checkIn=${checkInDate}&checkOut=${checkOutDate}&guests=${guests}`
     );
   };
 
@@ -38,11 +41,11 @@ export default function HotelSearchBar({ cities }) {
         {/* Destination Input */}
         <div className="flex flex-col w-full">
           <p className="text-gray-700 font-semibold mb-1">
-            Pilih Kota/Nama Hotel/ Destinasi
+            Pilih Kota Destinasi
           </p>
           <Select
             showSearch
-            placeholder="Pilih nama hotel/destinasi/kota menginap"
+            placeholder="Pilih nama destinasi/kota menginap"
             value={destination || null}
             onChange={(value) => setDestination(value)}
             filterOption={(input, option) =>
@@ -58,21 +61,20 @@ export default function HotelSearchBar({ cities }) {
         {/* Date Picker */}
         <div className="flex flex-col w-full">
           <p className="text-gray-700 font-semibold mb-1">Tanggal Menginap</p>
-          <DatePicker
+          <RangePicker
             className="w-full"
-            placeholder="Pilih tanggal menginap"
-            onChange={(date) => setDate(date)}
+            placeholder={["Check-in", "Check-out"]}
+            onChange={(dates) => setDate(dates)}
+            format="YYYY-MM-DD" // Ensures correct date format
           />
         </div>
 
         {/* Guests and Rooms */}
         <div className="flex flex-col w-full">
-          <p className="text-gray-700 font-semibold mb-1">
-            Jumlah Tamu dan Kamar
-          </p>
+          <p className="text-gray-700 font-semibold mb-1">Jumlah Tamu</p>
           <Input
             type="number"
-            placeholder="Masukkan jumlah tamu dan kamar"
+            placeholder="Masukkan jumlah tamu"
             value={guests}
             onChange={(e) => setGuests(e.target.value)}
             min={1}

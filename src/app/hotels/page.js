@@ -1,30 +1,49 @@
-import Link from "next/link";
+import HotelFilterSidebar from "@/components/HotelFilterSidebar";
+import HotelSearchResults from "@/components/HotelSearchResults";
+import SearchSummary from "@/components/SearchSummary";
+import axios from "axios";
+import dayjs from "dayjs";
 
-const hotels = [
-  { id: 1, name: "Hotel A", price: "$100", location: "Paris" },
-  { id: 2, name: "Hotel B", price: "$150", location: "London" },
-];
+export default async function HotelsPage({ searchParams }) {
+  const { destination, checkIn, checkOut, guests } = searchParams || {};
 
-export default function HotelsList({ searchParams }) {
-  const { destination, checkIn, checkOut, guests } = searchParams;
+  if (!destination || !checkIn || !checkOut || !guests) {
+    return <p className="text-center mt-10">Missing search parameters</p>;
+  }
+
+  const nights = dayjs(checkOut).diff(dayjs(checkIn), "day");
+
+  let hotels = [];
+  try {
+    const response = await axios.get(
+      "https://ota-gin.onrender.com/api/v1/hotels/search",
+      {
+        params: {
+          city_id: destination,
+          date: checkIn,
+          nights: nights,
+          adult_guests: guests,
+        },
+      }
+    );
+    hotels = response.data.data || [];
+  } catch (error) {
+    console.error("Error fetching hotels:", error);
+  }
 
   return (
-    <div>
-      <h1>Hotels in {destination}</h1>
-      <p>
-        Check-in: {checkIn}, Check-out: {checkOut}, Guests: {guests}
-      </p>
-      <ul>
-        {hotels.map((hotel) => (
-          <li key={hotel.id}>
-            <Link href={`/hotels/${hotel.id}`}>
-              <h2>{hotel.name}</h2>
-              <p>{hotel.location}</p>
-              <p>{hotel.price} per night</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <div className="container mx-auto mt-10">
+      <SearchSummary
+        destination={destination}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        guests={guests}
+      />
+
+      <div className="flex gap-4 mt-4">
+        <HotelFilterSidebar />
+        <HotelSearchResults hotels={hotels} />
+      </div>
     </div>
   );
 }

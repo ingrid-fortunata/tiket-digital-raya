@@ -1,32 +1,109 @@
-import { notFound } from "next/navigation";
+"use client";
 
-const hotels = {
-  1: {
-    name: "Hotel A",
-    price: "$100",
-    location: "Paris",
-    description: "Luxury stay in Paris.",
-  },
-  2: {
-    name: "Hotel B",
-    price: "$150",
-    location: "London",
-    description: "Cozy hotel in London.",
-  },
-};
+import { useHotel } from "@/context/hotelContext";
+import {
+  Breadcrumb,
+  Carousel,
+  Row,
+  Col,
+  Typography,
+  Tabs,
+  Card,
+  Space,
+} from "antd";
+import {
+  StarFilled,
+  EnvironmentOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 
-export default async function HotelDetail({ params }) {
-  const id = params.id; // Ensure `params` is awaited implicitly in an async component
-  const hotel = hotels[id];
+const { Title, Text } = Typography;
 
-  if (!hotel) return notFound(); // Handle 404
+export default function HotelDetailPage() {
+  const { selectedHotel } = useHotel();
+
+  if (!selectedHotel) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h1>{hotel.name}</h1>
-      <p>{hotel.location}</p>
-      <p>{hotel.price} per night</p>
-      <p>{hotel.description}</p>
+    <div className="container mx-auto p-6">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb
+        separator=">"
+        items={[
+          { title: "Home", href: "/" },
+          { title: "Hotels", href: "/hotels" },
+          { title: selectedHotel.name },
+        ]}
+      />
+
+      {/* Hotel Title & Location */}
+      <div className="mt-4">
+        <Title level={2}>{selectedHotel.name}</Title>
+        <Space>
+          <StarFilled className="text-yellow-500" />
+          <StarFilled className="text-yellow-500" />
+          <StarFilled className="text-yellow-500" />
+          <StarFilled className="text-yellow-500" />
+          <StarFilled className="text-yellow-500" />
+        </Space>
+        <Text className="block mt-2">
+          <EnvironmentOutlined /> {selectedHotel.location}
+        </Text>
+      </div>
+
+      {/* Hotel Image Carousel & Thumbnail */}
+      <Row gutter={16} className="mt-4">
+        <Col span={14}>
+          <Carousel autoplay>
+            {selectedHotel.images.map((image, index) => (
+              <div key={index}>
+                <img
+                  src={image}
+                  alt={`Hotel ${index}`}
+                  className="w-full h-72 rounded-lg object-cover"
+                />
+              </div>
+            ))}
+          </Carousel>
+        </Col>
+        <Col span={10}>
+          <Row gutter={[8, 8]}>
+            {selectedHotel.images.slice(0, 4).map((image, index) => (
+              <Col span={12} key={index}>
+                <img
+                  src={image}
+                  alt={`Thumbnail ${index}`}
+                  className="w-full h-32 rounded-lg object-cover"
+                />
+              </Col>
+            ))}
+          </Row>
+        </Col>
+      </Row>
+
+      {/* Hotel Details - Tabs */}
+      <Tabs defaultActiveKey="1" className="mt-6">
+        <Tabs.TabPane tab="Tentang Hotel" key="1">
+          <Text>{selectedHotel.description}</Text>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Fasilitas" key="2">
+          <Row gutter={[16, 16]}>
+            {selectedHotel.facilities.map((facility, index) => (
+              <Col key={index} span={8}>
+                <Card>
+                  <CheckCircleOutlined className="text-green-500" /> {facility}
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Kamar" key="3">
+          <Text>List card kamar</Text>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Review" key="4">
+          <Text>Belum ada review</Text>
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 }
