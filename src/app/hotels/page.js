@@ -5,7 +5,11 @@ import axios from "axios";
 import dayjs from "dayjs";
 
 export default async function HotelsPage({ searchParams }) {
-  const { destination, checkIn, checkOut, guests } = searchParams || {};
+  if (!searchParams) return null;
+  const destination = searchParams.destination || "";
+  const checkIn = searchParams.checkIn || "";
+  const checkOut = searchParams.checkOut || "";
+  const guests = searchParams.guests || "";
 
   if (!destination || !checkIn || !checkOut || !guests) {
     return <p className="text-center mt-10">Missing search parameters</p>;

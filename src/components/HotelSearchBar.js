@@ -92,13 +92,6 @@ export default function HotelSearchBar({ cities }) {
           </Button>
         </div>
       </div>
-
-      {/* Last Search Button */}
-      <div className="mt-10 flex w-[65%] justify-items-start">
-        <Button className="text-white bg-blue-700 hover:bg-blue-800">
-          Lihat Pencarian Terakhir-mu <DownOutlined />
-        </Button>
-      </div>
     </div>
   );
 }
